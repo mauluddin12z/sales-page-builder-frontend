@@ -59,7 +59,9 @@ export default function RegisterPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(image:--gradient-primary) shadow-glow">
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">SalesAI</span>
+          <span className="text-lg font-semibold tracking-tight">
+            Sales Page Builder
+          </span>
         </Link>
 
         {/* Card */}

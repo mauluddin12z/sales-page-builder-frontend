@@ -8,7 +8,11 @@ export const useSalesPages = (page: number = 1) => {
     () => fetchSalesPages(page),
     {
       keepPreviousData: true,
+
       revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: false,
+      dedupingInterval: 60000,
     },
   );
 

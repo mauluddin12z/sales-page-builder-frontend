@@ -1,17 +1,10 @@
-export type NormalizedContent = {
-  headline: string;
-  subheadline: string;
-  description: string;
-  benefits: string[];
-  features: string[];
-  social_proof: string;
-  pricing: string;
-  cta: string;
-};
+import { normalizeContent } from "@/lib/content";
+import { NormalizedContentInterface } from "@/types";
 
-type Props = { g: NormalizedContent; productName: string };
+type Props = { g: NormalizedContentInterface; productName: string };
 
 export function ElegantTemplate({ g, productName }: Props) {
+  const content = normalizeContent(g);
   const serif = {
     fontFamily: '"Cormorant Garamond", "Playfair Display", Georgia, serif',
   };
@@ -25,11 +18,11 @@ export function ElegantTemplate({ g, productName }: Props) {
           style={serif}
           className="mt-8 text-5xl sm:text-7xl font-normal italic leading-[1.05] text-[#1a1a18]"
         >
-          {g.headline}
+          {content?.headline}
         </h1>
         <div className="mx-auto my-10 h-px w-24 bg-[#8a7d65]" />
         <p className="mx-auto max-w-xl text-lg text-[#5c554a] leading-relaxed">
-          {g.subheadline}
+          {content?.subheadline}
         </p>
         <div className="mt-12">
           <button className="bg-[#1a1a18] text-[#faf7f2] px-10 h-12 text-sm uppercase tracking-[0.2em] hover:bg-[#2a2a28]">
@@ -47,7 +40,7 @@ export function ElegantTemplate({ g, productName }: Props) {
             style={serif}
             className="mt-8 text-2xl sm:text-3xl italic leading-relaxed text-[#1a1a18]"
           >
-            {g.description}
+            {content?.description}
           </p>
         </div>
       </section>
@@ -62,7 +55,7 @@ export function ElegantTemplate({ g, productName }: Props) {
           </h2>
         </div>
         <div className="mt-16 space-y-12">
-          {g.benefits.map((b, i) => (
+          {content?.benefits.map((b, i) => (
             <div key={i} className="grid gap-6 md:grid-cols-12 items-baseline">
               <div
                 style={serif}
@@ -89,7 +82,7 @@ export function ElegantTemplate({ g, productName }: Props) {
             </h2>
           </div>
           <div className="mt-16 grid gap-8 md:grid-cols-2">
-            {g.features.map((f, i) => (
+            {content?.features.map((f, i) => (
               <div key={i} className="border-l-2 border-[#8a7d65] pl-6">
                 <p className="text-xs uppercase tracking-[0.3em] text-[#8a7d65]">
                   No. {String(i + 1).padStart(2, "0")}
@@ -111,7 +104,7 @@ export function ElegantTemplate({ g, productName }: Props) {
           style={serif}
           className="mt-8 text-3xl sm:text-4xl italic leading-snug text-[#1a1a18]"
         >
-          "{g.social_proof}"
+          "{content?.social_proof}"
         </p>
       </section>
 
@@ -124,7 +117,7 @@ export function ElegantTemplate({ g, productName }: Props) {
             style={serif}
             className="mt-6 text-2xl italic leading-relaxed text-[#1a1a18]"
           >
-            {g.pricing}
+            {content?.pricing}
           </p>
           <button className="mt-10 bg-[#1a1a18] text-[#faf7f2] px-10 h-12 text-sm uppercase tracking-[0.2em]">
             Begin
@@ -137,7 +130,7 @@ export function ElegantTemplate({ g, productName }: Props) {
           style={serif}
           className="text-4xl sm:text-6xl italic leading-tight text-[#1a1a18]"
         >
-          {g.cta}
+          {content?.cta}
         </h2>
         <div className="mx-auto mt-10 h-px w-24 bg-[#8a7d65]" />
         <button className="mt-10 bg-[#1a1a18] text-[#faf7f2] px-12 h-14 text-sm uppercase tracking-[0.3em]">

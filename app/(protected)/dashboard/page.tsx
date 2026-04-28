@@ -1,48 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, Pencil, Trash2, Plus, FileText, Calendar } from "lucide-react";
+import { Trash2, Plus, FileText } from "lucide-react";
 
 import AppLayout from "@/components/layout/AppLayout";
-import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
-import { useDeleteSalesPage, useSalesPages } from "@/hooks/sales-pages";
+import {
+  useDeleteSalesPage,
+  useSalesPage,
+  useSalesPages,
+} from "@/hooks/sales-pages";
+import SalesPageCard from "@/components/ui/SalesPageCard";
+import Modal from "@/components/ui/Modal";
+import toast from "react-hot-toast";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const router = useRouter();
 
-  const { trigger: deleteSalesPage } = useDeleteSalesPage();
+  const { trigger: deleteSalesPage, isMutating } = useDeleteSalesPage();
   const { salesPages } = useSalesPages();
+  const salesPageList = salesPages?.data;
 
-  const handleDelete = async (id:number) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this sales page?",
-    );
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const { salesPage: deleteTarget } = useSalesPage(deleteTargetId ?? undefined);
 
-    if (!confirmDelete) return;
+  const handleDeleteConfirm = async () => {
+    if (deleteTargetId == null) return;
+
+    const toastId = toast.loading("Deleting sales page...");
 
     try {
-      await deleteSalesPage(id);
+      await deleteSalesPage(deleteTargetId);
+
+      toast.success("Sales page deleted successfully", {
+        id: toastId,
+      });
+
+      setDeleteTargetId(null);
     } catch (err) {
-      console.error("Failed to delete sales page:", err);
+      console.error(err);
+
+      toast.error("Failed to delete sales page", {
+        id: toastId,
+      });
     }
   };
-
-  useEffect(() => {
-    if (user === null) {
-      const t = setTimeout(() => {
-        if (!localStorage.getItem("asp_user")) {
-          router.push("/login");
-        }
-      }, 50);
-
-      return () => clearTimeout(t);
-    }
-  }, [user, router]);
-
   return (
     <AppLayout>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
@@ -52,7 +56,8 @@ export default function DashboardPage() {
               Your sales pages
             </h1>
             <p className="mt-1 text-muted-foreground">
-              {salesPages?.length} {salesPages?.length === 1 ? "page" : "pages"} generated
+              {salesPageList?.length}{" "}
+              {salesPageList?.length === 1 ? "page" : "pages"} generated
             </p>
           </div>
 
@@ -60,13 +65,16 @@ export default function DashboardPage() {
             asChild
             className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 shadow-glow"
           >
-            <Link href="/generate">
+            <Link
+              className="flex justify-center items-center gap-2"
+              href="/generate"
+            >
               <Plus className="h-4 w-4" /> New sales page
             </Link>
           </Button>
         </div>
 
-        {salesPages?.length === 0 ? (
+        {salesPageList?.length === 0 ? (
           <div className="mt-16 rounded-2xl border border-dashed border-border bg-card/50 p-16 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent">
               <FileText className="h-7 w-7 text-primary" />
@@ -89,64 +97,55 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {salesPages?.map((p) => (
-              <div
+            {salesPageList?.map((p) => (
+              <SalesPageCard
                 key={p.id}
-                className="group rounded-2xl border border-border bg-card p-6 shadow-(--shadow-sm) transition-all hover:shadow-(--shadow-lg) hover:-translate-y-1"
-              >
-                <h3 className="font-semibold text-foreground line-clamp-1">
-                  {p.product_name}
-                </h3>
-
-                <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
-                  {p.description}
-                </p>
-
-                <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  {new Date(p.created_at).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </div>
-
-                <div className="mt-5 flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => router.push(`/preview/live-demo-${p.id}`)}
-                  >
-                    <Eye className="h-3.5 w-3.5" /> View
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => router.push(`/generate?id=${p.id}`)}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      if (confirm(`Delete "${p.product_name}"?`)) {
-                        handleDelete(p.id);
-                      }
-                    }}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
+                page={p}
+                onView={(id) => router.push(`/preview/live-demo-${id}`)}
+                onEdit={(id) => router.push(`/generate?id=${id}`)}
+                onDelete={(id) => setDeleteTargetId(id)}
+              />
             ))}
           </div>
         )}
       </div>
+      <Modal isOpen={!!deleteTargetId} onClose={() => setDeleteTargetId(null)}>
+        <div className="flex flex-col items-center text-center">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+            <Trash2 className="h-7 w-7 text-destructive" />
+          </div>
+
+          <h1 className="text-xl font-bold text-foreground">
+            Delete sales page?
+          </h1>
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            {deleteTarget?.product_name
+              ? `Are you sure you want to delete "${deleteTarget.product_name}"?`
+              : "This action cannot be undone."}
+          </p>
+
+          <div className="mt-6 flex gap-3">
+            <Button
+              variant="default"
+              onClick={() => setDeleteTargetId(null)}
+              className="px-10"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              className="px-10"
+              isLoading={isMutating}
+              loadingText="Deleting..."
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </AppLayout>
   );
 }

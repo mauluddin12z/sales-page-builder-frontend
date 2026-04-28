@@ -1,20 +1,12 @@
+import { normalizeContent } from "@/lib/content";
+import { NormalizedContentInterface } from "@/types";
 import { Check, Sparkles, Star } from "lucide-react";
 
-export type NormalizedContent = {
-  headline: string;
-  subheadline: string;
-  description: string;
-  benefits: string[];
-  features: string[];
-  social_proof: string;
-  pricing: string;
-  cta: string;
-};
-
-type Props = { g: NormalizedContent; productName: string };
+type Props = { g: NormalizedContentInterface; productName: string };
 
 /* ---------------- MODERN SAAS ---------------- */
 export function ModernTemplate({ g, productName }: Props) {
+  const content = normalizeContent(g);
   return (
     <div className="bg-background text-foreground">
       <section className="relative overflow-hidden bg-(image:--gradient-soft)">
@@ -24,10 +16,10 @@ export function ModernTemplate({ g, productName }: Props) {
             <Sparkles className="h-3 w-3 text-primary" /> Now available
           </div>
           <h1 className="mt-6 text-5xl sm:text-7xl font-bold tracking-tight leading-[1.05]">
-            {g.headline}
+            {content?.headline}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            {g.subheadline}
+            {content?.subheadline}
           </p>
           <div className="mt-10 flex items-center justify-center gap-3">
             <button className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 shadow-glow h-12 px-8 rounded-md font-medium">
@@ -48,7 +40,7 @@ export function ModernTemplate({ g, productName }: Props) {
           Built with intention.
         </h2>
         <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-          {g.description}
+          {content?.description}
         </p>
       </section>
 
@@ -63,7 +55,7 @@ export function ModernTemplate({ g, productName }: Props) {
             </h2>
           </div>
           <div className="mt-16 grid gap-6 md:grid-cols-2">
-            {g.benefits.map((b, i) => (
+            {content?.benefits.map((b, i) => (
               <div
                 key={i}
                 className="rounded-2xl bg-card border border-border p-8 shadow-elegant"
@@ -88,7 +80,7 @@ export function ModernTemplate({ g, productName }: Props) {
           </h2>
         </div>
         <div className="mt-16 grid gap-x-12 gap-y-8 md:grid-cols-2">
-          {g.features.map((f, i) => (
+          {content?.features.map((f, i) => (
             <div key={i} className="flex gap-4">
               <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl bg-accent">
                 <Check className="h-5 w-5 text-primary" />
@@ -110,7 +102,7 @@ export function ModernTemplate({ g, productName }: Props) {
             ))}
           </div>
           <p className="mt-6 text-2xl sm:text-3xl font-medium tracking-tight leading-snug">
-            {g.social_proof}
+            {content?.social_proof}
           </p>
         </div>
       </section>
@@ -124,7 +116,7 @@ export function ModernTemplate({ g, productName }: Props) {
         </h2>
         <div className="mt-12 rounded-3xl border border-primary bg-card p-10 shadow-glow">
           <p className="text-xl sm:text-2xl font-medium leading-relaxed">
-            {g.pricing}
+            {content?.pricing}
           </p>
           <button className="mt-8 bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 h-12 px-8 rounded-md font-medium">
             Start free trial
@@ -133,9 +125,9 @@ export function ModernTemplate({ g, productName }: Props) {
       </section>
 
       <section className="px-4 sm:px-6 lg:px-8 pb-24">
-        <div className="mx-auto max-w-5xl rounded-3xlbg-(image:--gradient-hero) p-12 sm:p-20 text-center shadow-glow">
+        <div className="mx-auto max-w-5xl rounded-3xl bg-(image:--gradient-hero) p-12 sm:p-20 text-center shadow-glow">
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-primary-foreground leading-tight">
-            {g.cta}
+            {content?.cta}
           </h2>
           <button className="mt-8 h-12 px-8 font-semibold bg-secondary text-secondary-foreground rounded-md">
             Get started now
@@ -144,7 +136,7 @@ export function ModernTemplate({ g, productName }: Props) {
       </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} {productName}. Generated with SalesAI.
+        © {new Date().getFullYear()} {productName}. Generated with AI Sales Page Builder.
       </footer>
     </div>
   );

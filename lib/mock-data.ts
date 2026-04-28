@@ -24,10 +24,10 @@ export const TEMPLATES: {
 
 export type SalesPage = {
   id: string;
-  productName: string;
+  product_name: string;
   description: string;
   features: string[];
-  audience: string;
+  target_audience: string;
   price: string;
   usp: string;
   template: TemplateId;
@@ -49,29 +49,29 @@ export type GeneratedContent = {
 };
 
 export const buildGenerated = (input: {
-  productName: string;
+  product_name: string;
   description: string;
   features: string[];
-  audience: string;
+  target_audience: string;
   price: string;
   usp: string;
 }): GeneratedContent => {
-  const audience = input.audience || "modern teams";
+  const target_audience = input.target_audience || "modern teams";
   const priceLabel = input.price
     ? `$${input.price.replace(/[^0-9.]/g, "") || "29"}/mo`
     : "Starts at $29/mo";
 
   return {
-    headline: `${input.productName} — the smarter way for ${audience} to win.`,
+    headline: `${input.product_name} — the smarter way for ${target_audience} to win.`,
     subheadline:
       input.usp ||
-      `Stop wrestling with the old way. ${input.productName} is built so ${audience} can move faster, with less friction and better results.`,
+      `Stop wrestling with the old way. ${input.product_name} is built so ${target_audience} can move faster, with less friction and better results.`,
     description:
       input.description ||
-      `${input.productName} is designed from the ground up for ${audience} who refuse to settle. It removes the busywork, surfaces what matters, and turns hours of effort into minutes of momentum.`,
+      `${input.product_name} is designed from the ground up for ${target_audience} who refuse to settle. It removes the busywork, surfaces what matters, and turns hours of effort into minutes of momentum.`,
     benefits: [
-      `Reclaim hours every week — ${input.productName} automates the repetitive work draining your team.`,
-      `Make confident decisions faster with insights tailored to ${audience}.`,
+      `Reclaim hours every week — ${input.product_name} automates the repetitive work draining your team.`,
+      `Make confident decisions faster with insights tailored to ${target_audience}.`,
       `Scale without rewrites — go from your first user to your millionth on the same foundation.`,
       `Onboard in minutes, not weeks. Your team will actually want to use it.`,
     ],
@@ -83,9 +83,9 @@ export const buildGenerated = (input: {
           "Enterprise-grade security: SOC2, SSO, and audit logs",
           "Powerful integrations with the tools you already use",
         ],
-    social_proof: `Join 12,000+ ${audience} already shipping faster with ${input.productName}. Rated 4.9/5 across 800+ verified reviews — “${input.productName} paid for itself in the first week.” — Sarah Chen, Head of Growth.`,
+    social_proof: `Join 12,000+ ${target_audience} already shipping faster with ${input.product_name}. Rated 4.9/5 across 800+ verified reviews — “${input.product_name} paid for itself in the first week.” — Sarah Chen, Head of Growth.`,
     pricing: `${priceLabel} — start free, no credit card required. Cancel anytime. 30-day money-back guarantee.`,
-    cta: `Ready to transform how ${audience} work? Start your free trial of ${input.productName} today.`,
+    cta: `Ready to transform how ${target_audience} work? Start your free trial of ${input.product_name} today.`,
   };
 };
 
@@ -100,10 +100,10 @@ export type SectionKey =
   | "cta";
 
 type RegenInput = {
-  productName: string;
+  product_name: string;
   description: string;
   features: string[];
-  audience: string;
+  target_audience: string;
   price: string;
   usp: string;
 };
@@ -114,8 +114,8 @@ export function regenerateSection(
   section: SectionKey,
   input: RegenInput,
 ): GeneratedContent[SectionKey] {
-  const name = input.productName || "Our product";
-  const audience = input.audience || "modern teams";
+  const name = input.product_name || "Our product";
+  const target_audience = input.target_audience || "modern teams";
   const priceLabel = input.price
     ? `$${input.price.replace(/[^0-9.]/g, "") || "29"}/mo`
     : "Starts at $29/mo";
@@ -123,34 +123,34 @@ export function regenerateSection(
   switch (section) {
     case "headline":
       return pick([
-        `${name} — the smarter way for ${audience} to win.`,
-        `Finally, a tool ${audience} actually love using.`,
+        `${name} — the smarter way for ${target_audience} to win.`,
+        `Finally, a tool ${target_audience} actually love using.`,
         `Stop guessing. Start shipping with ${name}.`,
-        `${name}: built for ${audience} who refuse to settle.`,
-        `The unfair advantage for ambitious ${audience}.`,
+        `${name}: built for ${target_audience} who refuse to settle.`,
+        `The unfair advantage for ambitious ${target_audience}.`,
         `Less busywork. More breakthroughs. Meet ${name}.`,
       ]);
     case "subheadline":
       return pick([
         input.usp ||
-          `${name} removes friction so ${audience} can focus on what matters.`,
-        `Join thousands of ${audience} who replaced 5 tools with one.`,
-        `Powerful by default. Simple by design. Loved by ${audience}.`,
+          `${name} removes friction so ${target_audience} can focus on what matters.`,
+        `Join thousands of ${target_audience} who replaced 5 tools with one.`,
+        `Powerful by default. Simple by design. Loved by ${target_audience}.`,
         `From first click to first win in under 60 seconds.`,
-        `Everything ${audience} need. Nothing they don't.`,
+        `Everything ${target_audience} need. Nothing they don't.`,
       ]);
     case "description":
       return pick([
         input.description ||
-          `${name} is designed from the ground up for ${audience} who refuse to settle.`,
-        `We built ${name} after watching ${audience} waste hours on tools that should "just work." Now they do.`,
-        `${name} combines a beautiful interface with serious power — purpose-built for the way ${audience} actually work.`,
-        `Born from frustration, refined through 1,000+ conversations with ${audience}. ${name} is the tool you wish you'd had years ago.`,
+          `${name} is designed from the ground up for ${target_audience} who refuse to settle.`,
+        `We built ${name} after watching ${target_audience} waste hours on tools that should "just work." Now they do.`,
+        `${name} combines a beautiful interface with serious power — purpose-built for the way ${target_audience} actually work.`,
+        `Born from frustration, refined through 1,000+ conversations with ${target_audience}. ${name} is the tool you wish you'd had years ago.`,
       ]);
     case "benefits": {
       const pool = [
         `Reclaim hours every week — ${name} automates the busywork draining your team.`,
-        `Make confident decisions faster with insights tailored to ${audience}.`,
+        `Make confident decisions faster with insights tailored to ${target_audience}.`,
         `Scale without rewrites — go from first user to millionth on the same foundation.`,
         `Onboard in minutes, not weeks. Your team will actually want to use it.`,
         `Cut tool sprawl — replace your messy stack with one elegant solution.`,
@@ -176,10 +176,10 @@ export function regenerateSection(
     }
     case "social_proof":
       return pick([
-        `Join 12,000+ ${audience} already shipping faster with ${name}. Rated 4.9/5 across 800+ verified reviews — "${name} paid for itself in the first week." — Sarah Chen, Head of Growth.`,
+        `Join 12,000+ ${target_audience} already shipping faster with ${name}. Rated 4.9/5 across 800+ verified reviews — "${name} paid for itself in the first week." — Sarah Chen, Head of Growth.`,
         `"${name} replaced four tools and saved us 20 hours a week." — Marcus Lee, VP Operations. Trusted by teams at Stripe, Linear, and Notion.`,
         `4.9 ★ on G2 · 1,200+ reviews · "We tried every alternative. ${name} is the only one that stuck." — Priya Patel, Director.`,
-        `From scrappy startups to Fortune 500s, 25,000+ ${audience} trust ${name} every day. "Honestly, I can't imagine working without it." — Jordan Kim.`,
+        `From scrappy startups to Fortune 500s, 25,000+ ${target_audience} trust ${name} every day. "Honestly, I can't imagine working without it." — Jordan Kim.`,
       ]);
     case "pricing":
       return pick([
@@ -190,10 +190,10 @@ export function regenerateSection(
       ]);
     case "cta":
       return pick([
-        `Ready to transform how ${audience} work? Start your free trial of ${name} today.`,
+        `Ready to transform how ${target_audience} work? Start your free trial of ${name} today.`,
         `Stop reading. Start shipping. Try ${name} free for 14 days — no credit card.`,
         `Your future self will thank you. Get started with ${name} in under 60 seconds.`,
-        `Join the ${audience} already moving faster with ${name}. The first step is free.`,
+        `Join the ${target_audience} already moving faster with ${name}. The first step is free.`,
         `One decision. Zero risk. Try ${name} today and feel the difference.`,
       ]);
   }
@@ -202,21 +202,21 @@ export function regenerateSection(
 export const SEED_PAGES: SalesPage[] = [
   {
     id: "demo-1",
-    productName: "Lumen Analytics",
+    product_name: "Lumen Analytics",
     description:
       "An AI-powered analytics platform that turns raw data into actionable insights for product teams.",
     features: ["Real-time dashboards", "AI insights", "Team collaboration"],
-    audience: "Product managers",
+    target_audience: "Product managers",
     price: "49",
     usp: "The only analytics tool that explains *why* your numbers changed — not just what changed.",
     template: "modern",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
     generated: buildGenerated({
-      productName: "Lumen Analytics",
+      product_name: "Lumen Analytics",
       description:
         "An AI-powered analytics platform that turns raw data into actionable insights for product teams.",
       features: ["Real-time dashboards", "AI insights", "Team collaboration"],
-      audience: "Product managers",
+      target_audience: "Product managers",
       price: "49",
       usp: "The only analytics tool that explains *why* your numbers changed — not just what changed.",
     }),

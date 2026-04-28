@@ -1,138 +1,34 @@
 "use client";
 
-import { FormEvent, useEffect, useState, type KeyboardEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Sparkles, X } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import { buildGenerated } from "@/lib/mock-data";
-import { Label } from "@radix-ui/react-label";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { useSearchParams, useRouter } from "next/navigation";
+
 import AppLayout from "@/components/layout/AppLayout";
+import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import {
-  useCreateSalesPage,
-  useSalesPage,
-  useUpdateSalesPage,
-} from "@/hooks/sales-pages";
-import { generateSalesPage } from "@/lib/api/salesPages";
+import { Button } from "@/components/ui/Button";
+import { Label } from "@radix-ui/react-label";
+import { useSalesPageForm } from "@/hooks/sales-pages";
 
 export default function Page() {
-  const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const editId = searchParams.get("id") || undefined;
 
-  const [productName, setProductName] = useState("");
-  const [description, setDescription] = useState("");
-  const [features, setFeatures] = useState<string[]>([]);
-  const [featureInput, setFeatureInput] = useState("");
-  const [audience, setAudience] = useState("");
-  const [price, setPrice] = useState("");
-  const [usp, setUsp] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { salesPage } = useSalesPage(editId ? Number(editId) : undefined);
-  const { trigger: createSalesPage } = useCreateSalesPage();
-  const { trigger: updateSalesPage } = useUpdateSalesPage();
+  const {
+    form,
+    featureInput,
+    setFeatureInput,
+    errors,
+    isSubmitting,
+    updateField,
+    addFeature,
+    removeFeature,
+    handleFeatureKey,
+    submit,
+    isEdit,
+  } = useSalesPageForm(editId);
 
-  // Auth redirect
-  useEffect(() => {
-    if (user === null) {
-      const t = setTimeout(() => {
-        if (!localStorage.getItem("asp_user")) {
-          router.push("/login");
-        }
-      }, 50);
-      return () => clearTimeout(t);
-    }
-  }, [user, router]);
-
-  // Load edit data
-  useEffect(() => {
-    if (!salesPage) return;
-
-    setProductName(salesPage.product_name);
-    setDescription(salesPage.description);
-    setFeatures(salesPage.features || []);
-    setAudience(salesPage.target_audience);
-    setPrice(salesPage.price || "");
-    setUsp(salesPage.usp || "");
-  }, [salesPage]);
-
-  const addFeature = () => {
-    const v = featureInput.trim();
-    if (v && !features.includes(v)) {
-      setFeatures((prev) => (prev.includes(v) ? prev : [...prev, v]));
-    }
-    setFeatureInput("");
-  };
-
-  const handleFeatureKey = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      addFeature();
-    }
-  };
-
-  const validate = () => {
-    const e: Record<string, string> = {};
-    if (!productName.trim()) e.productName = "Product name is required";
-    if (description.trim().length < 20)
-      e.description = "Description should be at least 20 characters";
-    if (!audience.trim()) e.audience = "Target audience is required";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    setIsSubmitting(true);
-
-    try {
-      const basePayload = {
-        product_name: productName.trim(),
-        description: description.trim(),
-        features,
-        target_audience: audience.trim(),
-        price,
-        usp,
-      };
-
-      // generate AI content
-      const generated = await generateSalesPage(basePayload);
-
-      //  save to DB
-      if (editId) {
-        await updateSalesPage({
-          id: Number(editId),
-          payload: {
-            ...basePayload,
-            generated_content: generated.text,
-          },
-        });
-
-        router.push(`/preview/${editId}`);
-        return;
-      }
-
-      const result = await createSalesPage({
-        ...basePayload,
-        generated_content: generated.text,
-        template: "modern",
-      });
-
-      router.push(`/preview/${result.id}`);
-    } catch (err) {
-      console.error(err);
-      setIsSubmitting(false);
-    }
-  };
-
-  // Loading state
   if (isSubmitting) {
     return (
       <AppLayout>
@@ -162,7 +58,7 @@ export default function Page() {
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            {editId ? "Edit & regenerate" : "Generate a sales page"}
+            {isEdit ? "Edit & regenerate" : "Generate a sales page"}
           </h1>
           <p className="mt-1 text-muted-foreground">
             Tell us about your product. We'll handle the design.
@@ -170,7 +66,10 @@ export default function Page() {
         </div>
 
         <form
-          onSubmit={onSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
           className="mt-8 rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-elegant"
         >
           <div className="grid gap-6 md:grid-cols-2">
@@ -180,8 +79,8 @@ export default function Page() {
               </Label>
               <Input
                 id="productName"
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
+                value={form.productName}
+                onChange={(e) => updateField("productName", e.target.value)}
                 placeholder="e.g. Lumen Analytics"
               />
               {errors.productName && (
@@ -195,8 +94,8 @@ export default function Page() {
               </Label>
               <Input
                 id="audience"
-                value={audience}
-                onChange={(e) => setAudience(e.target.value)}
+                value={form.audience}
+                onChange={(e) => updateField("audience", e.target.value)}
                 placeholder="e.g. Product managers"
               />
               {errors.audience && (
@@ -210,8 +109,8 @@ export default function Page() {
               </Label>
               <Textarea
                 id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={form.description}
+                onChange={(e) => updateField("description", e.target.value)}
                 placeholder="Describe your product or service in detail"
                 rows={4}
               />
@@ -234,25 +133,23 @@ export default function Page() {
                 </Button>
               </div>
 
-              {features.length > 0 && (
+              {form.features.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {features.map((f) => (
+                  {form.features.map((f) => (
                     <span
                       key={f}
                       className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs"
                     >
                       {f}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFeatures((prev) => prev.filter((x) => x !== f))
-                        }
-                      >
+                      <button type="button" onClick={() => removeFeature(f)}>
                         <X className="h-3 w-3" />
                       </button>
                     </span>
                   ))}
                 </div>
+              )}
+              {errors.features && (
+                <p className="text-xs text-destructive">{errors.features}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -261,8 +158,8 @@ export default function Page() {
               </Label>
               <Input
                 id="price"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                value={form.price}
+                onChange={(e) => updateField("price", e.target.value)}
                 placeholder="e.g. 29"
               />
             </div>
@@ -273,8 +170,8 @@ export default function Page() {
               </Label>
               <Textarea
                 id="usp"
-                value={usp}
-                onChange={(e) => setUsp(e.target.value)}
+                value={form.usp}
+                onChange={(e) => updateField("usp", e.target.value)}
                 placeholder="What makes you different?"
                 rows={3}
               />
@@ -292,7 +189,7 @@ export default function Page() {
 
             <Button type="submit">
               <Sparkles className="h-4 w-4" />
-              {editId ? "Regenerate page" : "Generate sales page"}
+              {isEdit ? "Regenerate page" : "Generate sales page"}
             </Button>
           </div>
         </form>

@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import Loading from "@/components/ui/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { Navbar } from "@/components/layout/Navbar";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function ProtectedLayout({
   children,
@@ -12,17 +11,16 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const token = Cookies.get("token");
-
-    if (!loading && !token) {
+    if (!loading && !user) {
       router.replace("/login");
     }
-  }, [loading, router]);
+  }, [user, loading]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
+  if (!user) return null;
 
   return <>{children}</>;
 }

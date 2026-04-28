@@ -2,15 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Check,
-  Download,
-  Loader2,
-  Pencil,
-  RefreshCw,
-} from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { ArrowLeft, Download, Loader2, Pencil, RefreshCw } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useSalesPage, useUpdateSalesPage } from "@/hooks/sales-pages";
 import toast from "react-hot-toast";
@@ -27,6 +20,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/Dropdown-menu";
+import Loading from "@/components/ui/Loading";
+import safeParseJSON from "@/lib/safeParseJson";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -44,29 +39,13 @@ export type SectionKey =
   | "pricing"
   | "cta";
 
-export const TEMPLATES: {
-  id: TemplateId;
-  name: string;
-  description: string;
-}[] = [
-  {
-    id: "modern",
-    name: "Modern SaaS",
-    description: "Clean, gradient hero, soft shadows",
-  },
-  {
-    id: "bold",
-    name: "Bold Dark",
-    description: "High-contrast, brutalist, neon accents",
-  },
-  {
-    id: "elegant",
-    name: "Elegant Editorial",
-    description: "Serif typography, generous whitespace",
-  },
-];
+export const TEMPLATES = [
+  { id: "modern", name: "Modern SaaS", description: "Clean UI" },
+  { id: "bold", name: "Bold Dark", description: "High contrast" },
+  { id: "elegant", name: "Elegant Editorial", description: "Serif style" },
+] as const;
 
-const SECTION_LABELS: { key: SectionKey; label: string }[] = [
+const SECTION_LABELS = [
   { key: "headline", label: "Headline" },
   { key: "subheadline", label: "Subheadline" },
   { key: "description", label: "Description" },
@@ -75,7 +54,7 @@ const SECTION_LABELS: { key: SectionKey; label: string }[] = [
   { key: "social_proof", label: "Social proof" },
   { key: "pricing", label: "Pricing" },
   { key: "cta", label: "Call to action" },
-];
+] as const;
 
 export default function Page({ params }: PageProps) {
   const { slug } = React.use(params);
@@ -85,26 +64,56 @@ export default function Page({ params }: PageProps) {
   const { salesPage: page, isLoading } = useSalesPage(Number(id));
   const { trigger: updateSalesPage } = useUpdateSalesPage();
 
-  const [template, setTemplate] = useState<TemplateId>(
-    page?.template || "modern",
-  );
+  // -----------------------
+  // LOADING STATES
+  // -----------------------
   const [regenLoading, setRegenLoading] = useState<SectionKey | null>(null);
-  const [flashKey, setFlashKey] = useState<SectionKey | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
 
-  console.log(page?.template)
+  // -----------------------
+  // PERSISTED STATE (DB)
+  // -----------------------
+  const [persistedTemplate, setPersistedTemplate] =
+    useState<TemplateId>("modern");
 
+  const [persistedContent, setPersistedContent] = useState<any>(null);
+
+  // -----------------------
+  // DRAFT STATE (PREVIEW)
+  // -----------------------
+  const [draftTemplate, setDraftTemplate] = useState<TemplateId>("modern");
+
+  const [draftContent, setDraftContent] = useState<any>(null);
+
+  const hasChanges =
+    draftTemplate !== persistedTemplate ||
+    JSON.stringify(draftContent) !== JSON.stringify(persistedContent);
+
+  // -----------------------
+  // INIT FROM DB
+  // -----------------------
   useEffect(() => {
-    if (page && template !== page.template) {
-      updateSalesPage({
-        id: Number(id),
-        payload: {
-          ...page,
-          template,
-        },
-      });
-    }
-  }, [template]);
+    if (!page) return;
 
+    const parsed = safeParseJSON(page.generated_content);
+
+    setPersistedTemplate(page.template);
+    setDraftTemplate(page.template);
+
+    setPersistedContent(parsed);
+    setDraftContent(parsed);
+  }, [page]);
+
+  // -----------------------
+  // TEMPLATE PREVIEW
+  // -----------------------
+  const handleTemplatePreview = (t: TemplateId) => {
+    setDraftTemplate(t);
+  };
+
+  // -----------------------
+  // REGENERATE (NOW DRAFT ONLY)
+  // -----------------------
   const handleRegenerate = async (section: SectionKey) => {
     if (!page || regenLoading) return;
 
@@ -119,27 +128,17 @@ export default function Page({ params }: PageProps) {
         target_audience: page.target_audience,
         price: page.price || "",
         usp: page.usp || "",
-        current_output: JSON.parse(page.generated_content),
+        current_output: draftContent,
       });
 
-      const updatedContent = {
-        ...JSON.parse(page.generated_content),
+      const updated = {
+        ...draftContent,
         ...regenerated.text,
       };
 
-      updateSalesPage({
-        id: Number(id),
-        payload: {
-          ...page,
-          template,
-          generated_content: JSON.stringify(updatedContent),
-        },
-      });
+      setDraftContent(updated);
 
-      setFlashKey(section);
-      toast.success(`${section.replace("_", " ")} regenerated`);
-
-      setTimeout(() => setFlashKey(null), 1200);
+      toast.success(`${section.replace("_", " ")} updated (preview)`);
     } catch (err) {
       console.error(err);
       toast.error("Regeneration failed");
@@ -148,16 +147,43 @@ export default function Page({ params }: PageProps) {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
+  // -----------------------
+  // APPLY ALL CHANGES
+  // -----------------------
+  const handleApplyChanges = async () => {
+    if (!page || !hasChanges) return;
+
+    setIsApplying(true);
+
+    try {
+      await updateSalesPage({
+        id: Number(id),
+        payload: {
+          ...page,
+          template: draftTemplate,
+          generated_content: JSON.stringify(draftContent),
+        },
+      });
+
+      setPersistedTemplate(draftTemplate);
+      setPersistedContent(draftContent);
+
+      toast.success("Changes applied");
+    } catch (err) {
+      toast.error("Failed to apply changes");
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
+  // -----------------------
+  // LOADING
+  // -----------------------
+  if (isLoading) return <Loading />;
+
   if (!page) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold">Page not found</h2>
           <Button asChild className="mt-4">
@@ -168,19 +194,21 @@ export default function Page({ params }: PageProps) {
     );
   }
 
-  const g = JSON.parse(page?.generated_content);
-
+  // -----------------------
+  // TEMPLATE RENDERER
+  // -----------------------
   const Renderer =
-    template === "bold"
+    draftTemplate === "bold"
       ? BoldTemplate
-      : template === "elegant"
+      : draftTemplate === "elegant"
         ? ElegantTemplate
         : ModernTemplate;
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-lg">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3">
+      {/* HEADER */}
+      <div className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur-lg">
+        <div className="mx-auto max-w-7xl px-4 h-14 flex items-center justify-between">
           <Button
             variant="ghost"
             size="sm"
@@ -189,15 +217,16 @@ export default function Page({ params }: PageProps) {
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
 
+          {/* TEMPLATE PREVIEW */}
           <div className="hidden md:flex items-center gap-1 rounded-full border border-border bg-card p-1">
             {TEMPLATES.map((t) => (
               <button
                 key={t.id}
-                onClick={() => setTemplate(t.id)}
-                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors cursor-pointer ${
-                  template === t.id
+                onClick={() => handleTemplatePreview(t.id)}
+                className={`px-3 py-1 text-xs font-medium rounded-full cursor-pointer ${
+                  draftTemplate === t.id
                     ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
                 {t.name}
@@ -205,33 +234,28 @@ export default function Page({ params }: PageProps) {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="outline" disabled={!!regenLoading}>
                   {regenLoading ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <Loader2 className="h-3 w-3 animate-spin" />
                   ) : (
-                    <RefreshCw className="h-3.5 w-3.5" />
+                    <RefreshCw className="h-3 w-3" />
                   )}
                   Regenerate
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Regenerate a section</DropdownMenuLabel>
+
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Regenerate section</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {SECTION_LABELS.map((s) => (
                   <DropdownMenuItem
                     key={s.key}
                     onClick={() => handleRegenerate(s.key)}
-                    disabled={!!regenLoading}
-                    className="bg-popover cursor-pointer data-disabled:pointer-events-none data-disabled:opacity-50"
+                    className="cursor-pointer"
                   >
-                    {regenLoading === s.key ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <RefreshCw className="h-3.5 w-3.5" />
-                    )}
                     {s.label}
                   </DropdownMenuItem>
                 ))}
@@ -241,54 +265,48 @@ export default function Page({ params }: PageProps) {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => {
-                downloadHtmlFile({ ...page, template });
-                toast.success("HTML file downloaded");
-              }}
+              onClick={() =>
+                downloadHtmlFile({
+                  ...page,
+                  template: draftTemplate,
+                })
+              }
             >
-              <Download className="h-3.5 w-3.5" /> Export HTML
+              <Download className="h-3 w-3" /> Export
             </Button>
+
             <Button
               size="sm"
               variant="outline"
               onClick={() => router.push(`/generate?id=${page.id}`)}
             >
-              <Pencil className="h-3.5 w-3.5" /> Edit
+              <Pencil className="h-3 w-3" /> Edit
             </Button>
           </div>
         </div>
-
-        {/* Mobile template switcher */}
-        <div className="md:hidden flex gap-1 px-4 pb-2 overflow-x-auto">
-          {TEMPLATES.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTemplate(t.id)}
-              className={`px-3 py-1 text-xs font-medium rounded-full border whitespace-nowrap cursor-pointer ${
-                template === t.id
-                  ? "bg-foreground text-background border-foreground"
-                  : "border-border text-muted-foreground"
-              }`}
-            >
-              {t.name}
-            </button>
-          ))}
-        </div>
       </div>
 
-      <div
-        className={flashKey ? "animate-in fade-in duration-500" : ""}
-        key={JSON.stringify(g)}
-      >
-        <Renderer g={g} productName={page.product_name} />
-      </div>
+      {/* CONTENT */}
+      <Renderer g={draftContent} productName={page.product_name} />
 
+      {/* APPLY BUTTON */}
+      {hasChanges && (
+        <Button
+          onClick={handleApplyChanges}
+          disabled={isApplying}
+          className="fixed bottom-10 right-10 bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90"
+          isLoading={isApplying}
+          loadingText="Applying..."
+        >
+          Apply Changes
+        </Button>
+      )}
+
+      {/* REGEN LOADING */}
       {regenLoading && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 shadow-elegant">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          <span className="text-sm font-medium">
-            Regenerating {regenLoading.replace("_", " ")}…
-          </span>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-card border px-5 py-3 rounded-full flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Regenerating {regenLoading.replace("_", " ")}…
         </div>
       )}
     </div>

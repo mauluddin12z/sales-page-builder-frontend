@@ -1,12 +1,15 @@
+import { ApiResponse, PaginatedResponse } from "@/types";
 import { SalesPage } from "../types/salesPage";
 import api from "./client";
 
 /**
  * GET ALL (pagination)
  */
-export const fetchSalesPages = async (page = 1): Promise<SalesPage[]> => {
+export const fetchSalesPages = async (
+  page = 1,
+): Promise<PaginatedResponse<SalesPage[]>> => {
   const { data } = await api.get(`/sales-pages?page=${page}`);
-  return data.data;
+  return data;
 };
 
 /**
@@ -22,7 +25,7 @@ export const fetchSalesPage = async (id: number): Promise<SalesPage> => {
  */
 export const createSalesPage = async (
   payload: Omit<SalesPage, "id" | "created_at" | "updated_at" | "user_id">,
-): Promise<SalesPage> => {
+): Promise<ApiResponse<SalesPage>> => {
   const { data } = await api.post("/sales-pages", payload);
   return data;
 };
@@ -33,7 +36,7 @@ export const createSalesPage = async (
 export const updateSalesPage = async (
   id: number,
   payload: Partial<SalesPage>,
-): Promise<SalesPage> => {
+): Promise<ApiResponse<SalesPage>> => {
   const { data } = await api.put(`/sales-pages/${id}`, payload);
   return data;
 };

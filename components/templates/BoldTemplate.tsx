@@ -1,18 +1,10 @@
+import { normalizeContent } from "@/lib/content";
+import { NormalizedContentInterface } from "@/types";
 import { Check } from "lucide-react";
 
-export type NormalizedContent = {
-  headline: string;
-  subheadline: string;
-  description: string;
-  benefits: string[];
-  features: string[];
-  social_proof: string;
-  pricing: string;
-  cta: string;
-};
-
-type Props = { g: NormalizedContent; productName: string };
+type Props = { g: NormalizedContentInterface; productName: string };
 export default function BoldTemplate({ g, productName }: Props) {
+  const content = normalizeContent(g);
   return (
     <div
       className="bg-zinc-950 text-zinc-50"
@@ -24,10 +16,10 @@ export default function BoldTemplate({ g, productName }: Props) {
             ▲ New Drop
           </div>
           <h1 className="mt-8 text-5xl sm:text-8xl font-black uppercase leading-[0.95] tracking-tighter">
-            {g.headline}
+            {content?.headline}
           </h1>
           <p className="mt-8 max-w-2xl text-xl text-zinc-400 leading-relaxed">
-            {g.subheadline}
+            {content?.subheadline}
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <button className="bg-lime-400 text-zinc-950 px-8 h-14 font-black uppercase tracking-wider hover:bg-lime-300">
@@ -46,7 +38,7 @@ export default function BoldTemplate({ g, productName }: Props) {
             // About
           </p>
           <p className="mt-6 text-2xl sm:text-3xl font-medium leading-snug">
-            {g.description}
+            {content?.description}
           </p>
         </div>
       </section>
@@ -57,7 +49,7 @@ export default function BoldTemplate({ g, productName }: Props) {
             Benefits.
           </h2>
           <div className="mt-12 grid gap-0 md:grid-cols-2 border-t border-l border-zinc-800">
-            {g.benefits.map((b, i) => (
+            {content?.benefits.map((b, i) => (
               <div
                 key={i}
                 className="border-b border-r border-zinc-800 p-8 hover:bg-zinc-900 transition-colors"
@@ -80,7 +72,7 @@ export default function BoldTemplate({ g, productName }: Props) {
             Features.
           </h2>
           <ul className="mt-12 divide-y divide-zinc-800 border-y border-zinc-800">
-            {g.features.map((f, i) => (
+            {content?.features.map((f, i) => (
               <li key={i} className="flex items-center gap-6 py-6">
                 <span className="text-lime-400 font-mono text-sm">
                   {String(i + 1).padStart(2, "0")}
@@ -99,7 +91,7 @@ export default function BoldTemplate({ g, productName }: Props) {
             // Proof
           </p>
           <p className="mt-6 text-3xl sm:text-4xl font-black leading-tight">
-            "{g.social_proof}"
+            "{content?.social_proof}"
           </p>
         </div>
       </section>
@@ -110,7 +102,9 @@ export default function BoldTemplate({ g, productName }: Props) {
             Pricing.
           </h2>
           <div className="mt-12 border-2 border-lime-400 p-10 bg-zinc-900">
-            <p className="text-xl sm:text-2xl font-medium">{g.pricing}</p>
+            <p className="text-xl sm:text-2xl font-medium">
+              {content?.pricing}
+            </p>
             <button className="mt-8 bg-lime-400 text-zinc-950 px-10 h-14 font-black uppercase tracking-wider">
               Claim it now
             </button>
@@ -121,7 +115,7 @@ export default function BoldTemplate({ g, productName }: Props) {
       <section className="bg-zinc-50 text-zinc-950">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32 text-center">
           <h2 className="text-4xl sm:text-7xl font-black uppercase tracking-tighter leading-[0.95]">
-            {g.cta}
+            {content?.cta}
           </h2>
           <button className="mt-10 bg-zinc-950 text-lime-400 px-10 h-14 font-black uppercase tracking-wider">
             Start now →

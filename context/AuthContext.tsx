@@ -15,6 +15,7 @@ import {
   register as registerApi,
 } from "@/lib/api/auth";
 import { User } from "@/lib/types/auth";
+import toast from "react-hot-toast";
 
 interface AuthContextType {
   user: User | null;
@@ -29,12 +30,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
   const setAuth = (res: any) => {
     Cookies.set("token", res.token);
     setUser(res.user);
   };
 
-  // INIT only once
   useEffect(() => {
     const init = async () => {
       const token = Cookies.get("token");
@@ -47,8 +48,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const me = await getMe();
         setUser(me);
-      } catch {
+      } catch (err) {
         Cookies.remove("token");
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -58,20 +60,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = useCallback(async (data: any) => {
-    const res = await loginApi(data);
-    setAuth(res);
+    const toastId = toast.loading("Logging in...");
+
+    try {
+      const res = await loginApi(data);
+      setAuth(res);
+
+      toast.success("Welcome back!", { id: toastId });
+    } catch (err) {
+      console.error("Login failed:", err);
+      toast.error("Invalid credentials", { id: toastId });
+      throw err;
+    }
   }, []);
 
   const register = useCallback(async (data: any) => {
-    const res = await registerApi(data);
-    setAuth(res);
+    const toastId = toast.loading("Creating account...");
+
+    try {
+      const res = await registerApi(data);
+      setAuth(res);
+
+      toast.success("Account created successfully", { id: toastId });
+    } catch (err) {
+      console.error("Register failed:", err);
+      toast.error("Failed to create account", { id: toastId });
+      throw err;
+    }
   }, []);
 
   const logout = useCallback(async () => {
-    await logoutApi();
+    const toastId = toast.loading("Signing out...");
+
+    try {
+      await logoutApi();
+    } catch (e) {
+      console.warn("logout failed, continuing anyway");
+    }
 
     Cookies.remove("token");
     setUser(null);
+
+    toast.success("Logged out", { id: toastId });
   }, []);
 
   return (

@@ -3,7 +3,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Loader2 } from "lucide-react";
-import Cookies from "js-cookie";
 import { useAuth } from "@/context/AuthContext";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/Input";
@@ -19,12 +18,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   // redirect if already logged in
+  const { user, loading: userLoading } = useAuth();
   useEffect(() => {
-    const token = Cookies.get("token");
-    if (token) {
-      router.push("/dashboard");
+    if (!userLoading && user) {
+      router.replace("/dashboard");
     }
-  }, [router]);
+  }, [user, userLoading, router]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -61,7 +60,7 @@ export default function LoginPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(image:--gradient-primary) shadow-glow">
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">SalesAI</span>
+          <span className="text-lg font-semibold tracking-tight">AI Sales Page Builder</span>
         </div>
 
         {/* Card */}

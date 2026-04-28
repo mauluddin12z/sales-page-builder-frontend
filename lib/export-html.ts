@@ -108,7 +108,7 @@ function modernHtml(page: SalesPage, g: G): string {
   <section class="block soft"><div class="narrow center"><span class="eyebrow">Loved by teams</span><div style="margin-top:24px;color:var(--primary);font-size:22px">★★★★★</div><p class="quote">${escapeHtml(g.social_proof)}</p></div></section>
   <section id="pricing" class="block"><div class="narrow center"><span class="eyebrow">Pricing</span><h2>Simple, transparent pricing</h2><div class="price-card"><p>${escapeHtml(g.pricing)}</p><a href="#" class="btn btn-primary" style="margin-top:24px">Start free trial</a></div></div></section>
   <section style="padding:0 24px"><div class="final-inner"><h2>${escapeHtml(g.cta)}</h2><a href="#" class="btn" style="background:#fff;color:var(--fg);margin-top:28px">Get started now</a></div></section>
-  <footer>© ${new Date().getFullYear()} ${escapeHtml(page.product_name)}. Generated with SalesAI.</footer>`;
+  <footer>© ${new Date().getFullYear()} ${escapeHtml(page.product_name)}. Generated with AI Sales Page Builder.</footer>`;
 }
 
 /* ---------- BOLD ---------- */
