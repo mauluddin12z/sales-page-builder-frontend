@@ -3,9 +3,9 @@ import { elegantTemplate } from "../templates/elegant";
 import { modernTemplate } from "../templates/modern";
 
 import { normalizeSalesPage } from "./normalizeSalesPage";
-import type { G } from "./types";
+import { GeneratedContent } from "./types";
 
-const templates: Record<string, (page: any, g: G) => string> = {
+const templates: Record<string, (page: any, g: GeneratedContent) => string> = {
   modern: modernTemplate,
   bold: boldTemplate,
   elegant: elegantTemplate,

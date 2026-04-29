@@ -1,8 +1,8 @@
 import safeParseJSON from "../safeParseJson";
 import { toText } from "./toText";
-import type { G } from "./types";
+import type { GeneratedContent } from "./types";
 
-export function normalizeSalesPage(page: any): G {
+export function normalizeSalesPage(page: any): GeneratedContent {
   const raw = page.generated_content
     ? safeParseJSON(page.generated_content)
     : {};

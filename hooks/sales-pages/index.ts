@@ -4,3 +4,4 @@ export * from "@/hooks/sales-pages/useCreateSalesPage";
 export * from "@/hooks/sales-pages/useUpdateSalesPage";
 export * from "@/hooks/sales-pages/useDeleteSalesPage";
 export * from "@/hooks/sales-pages/useSalesPageForm";
+export * from "@/hooks/sales-pages/useSalesPageEditor";

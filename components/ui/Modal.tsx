@@ -8,6 +8,7 @@ interface ModalProps {
   title?: string;
   description?: string;
   icon?: ReactNode;
+  isHeader?: boolean;
   footer?: ReactNode;
   size?: "sm" | "md" | "lg";
 }
@@ -25,6 +26,7 @@ const Modal = ({
   description,
   icon,
   children,
+  isHeader = true,
   footer,
   size = "md",
 }: ModalProps) => {
@@ -62,36 +64,38 @@ const Modal = ({
       <div
         className={`relative w-full ${sizeMap[size]} overflow-hidden rounded-2xl border border-border bg-card shadow-(--shadow-elevated) animate-modal-in`}
       >
-        <div className="flex items-start gap-4 border-b border-border bg-linear-to-br from-primary-soft/60 to-card px-6 py-5">
-          {icon && (
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foregroundshadow-(--shadow-card) ">
-              {icon}
-            </div>
-          )}
-
-          <div className="flex-1">
-            <h2
-              id="form-modal-title"
-              className="text-lg font-bold leading-tight"
-            >
-              {title}
-            </h2>
-            {description && (
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                {description}
-              </p>
+        {isHeader && (
+          <div className="flex items-start gap-4 border-b border-border bg-linear-to-br from-primary-soft/60 to-card px-6 py-5">
+            {icon && (
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foregroundshadow-(--shadow-card) ">
+                {icon}
+              </div>
             )}
-          </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Tutup"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+            <div className="flex-1">
+              <h2
+                id="form-modal-title"
+                className="text-lg font-bold leading-tight"
+              >
+                {title}
+              </h2>
+              {description && (
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  {description}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Tutup"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         <div className="max-h-[70vh] overflow-y-auto px-6 py-5">{children}</div>
 

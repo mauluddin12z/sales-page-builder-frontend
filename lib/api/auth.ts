@@ -1,5 +1,5 @@
 import api from "./client";
-import { LoginPayload, AuthResponse, User } from "../types/auth";
+import { AuthResponse, LoginPayload, User } from "./type";
 
 /**
  * REGISTER

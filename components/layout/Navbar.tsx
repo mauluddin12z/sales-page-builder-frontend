@@ -102,7 +102,7 @@ export function Navbar() {
       </header>
 
       {/* Logout Modal */}
-      <Modal isOpen={isLogoutModalOpen} onClose={closeLogoutModal}>
+      <Modal isOpen={isLogoutModalOpen} onClose={closeLogoutModal} isHeader={false}>
         <div className="flex flex-col items-center text-center">
           <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
             <LogOut className="h-7 w-7 text-destructive" />

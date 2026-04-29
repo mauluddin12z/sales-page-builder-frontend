@@ -11,6 +11,7 @@ import {
   useSalesPage,
 } from "@/hooks/sales-pages";
 import { mutate } from "swr";
+import { generateSalesPage } from "@/lib/api/salesPages";
 
 type FormState = {
   productName: string;
@@ -152,9 +153,11 @@ export const useSalesPageForm = (editId?: string) => {
         target_audience: form.audience.trim(),
         price: form.price,
         usp: form.usp,
+        cta_label: "",
+        cta_url: "",
       };
 
-      const generated = await buildGenerated(basePayload);
+      const generated = await generateSalesPage(basePayload);
 
       if (editId) {
         await updateSalesPage({

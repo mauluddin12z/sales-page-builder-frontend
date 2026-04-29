@@ -1,4 +1,5 @@
 import { normalizeContent } from "@/lib/content";
+import { safeHref } from "@/lib/sales-page/safeHref";
 import { NormalizedContentInterface } from "@/types";
 import { Check, Sparkles, Star } from "lucide-react";
 
@@ -7,6 +8,8 @@ type Props = { g: NormalizedContentInterface; productName: string };
 /* ---------------- MODERN SAAS ---------------- */
 export function ModernTemplate({ g, productName }: Props) {
   const content = normalizeContent(g);
+  const href = safeHref(content?.cta_url as string | undefined) || "#";
+  const label = content.cta_label?.trim() || "Get started";
   return (
     <div className="bg-background text-foreground">
       <section className="relative overflow-hidden bg-(image:--gradient-soft)">
@@ -23,10 +26,10 @@ export function ModernTemplate({ g, productName }: Props) {
           </p>
           <div className="mt-10 flex items-center justify-center gap-3">
             <button className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 shadow-glow h-12 px-8 rounded-md font-medium">
-              Get started
+              <a href={href}>{label}</a>
             </button>
-            <button className="h-12 px-6 border border-input rounded-md font-medium">
-              See it in action
+            <button className="h-12 px-6 border border-input rounded-md font-medium hover:opacity-90">
+              <a href={href}>See it in action</a>
             </button>
           </div>
         </div>
@@ -119,7 +122,7 @@ export function ModernTemplate({ g, productName }: Props) {
             {content?.pricing}
           </p>
           <button className="mt-8 bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 h-12 px-8 rounded-md font-medium">
-            Start free trial
+            <a href={href}>Start free trial</a>
           </button>
         </div>
       </section>
@@ -130,13 +133,14 @@ export function ModernTemplate({ g, productName }: Props) {
             {content?.cta}
           </h2>
           <button className="mt-8 h-12 px-8 font-semibold bg-secondary text-secondary-foreground rounded-md">
-            Get started now
+            <a href={href}>{label}</a>
           </button>
         </div>
       </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} {productName}. Generated with AI Sales Page Builder.
+        © {new Date().getFullYear()} {productName}. Generated with AI Sales Page
+        Builder.
       </footer>
     </div>
   );

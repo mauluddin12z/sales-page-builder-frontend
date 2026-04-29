@@ -1,10 +1,13 @@
 import { normalizeContent } from "@/lib/content";
+import { safeHref } from "@/lib/sales-page/safeHref";
 import { NormalizedContentInterface } from "@/types";
 
 type Props = { g: NormalizedContentInterface; productName: string };
 
 export function ElegantTemplate({ g, productName }: Props) {
   const content = normalizeContent(g);
+  const href = safeHref(content?.cta_url as string | undefined) || "#";
+  const label = content.cta_label?.trim() || "Get started";
   const serif = {
     fontFamily: '"Cormorant Garamond", "Playfair Display", Georgia, serif',
   };
@@ -26,7 +29,7 @@ export function ElegantTemplate({ g, productName }: Props) {
         </p>
         <div className="mt-12">
           <button className="bg-[#1a1a18] text-[#faf7f2] px-10 h-12 text-sm uppercase tracking-[0.2em] hover:bg-[#2a2a28]">
-            Discover
+            <a href={href}>{label}</a>
           </button>
         </div>
       </section>
@@ -120,7 +123,7 @@ export function ElegantTemplate({ g, productName }: Props) {
             {content?.pricing}
           </p>
           <button className="mt-10 bg-[#1a1a18] text-[#faf7f2] px-10 h-12 text-sm uppercase tracking-[0.2em]">
-            Begin
+            <a href={href}>Begin</a>
           </button>
         </div>
       </section>
@@ -134,7 +137,7 @@ export function ElegantTemplate({ g, productName }: Props) {
         </h2>
         <div className="mx-auto mt-10 h-px w-24 bg-[#8a7d65]" />
         <button className="mt-10 bg-[#1a1a18] text-[#faf7f2] px-12 h-14 text-sm uppercase tracking-[0.3em]">
-          Reserve yours
+          <a href={href}>{label}</a>
         </button>
       </section>
 

@@ -1,10 +1,13 @@
 import { normalizeContent } from "@/lib/content";
+import { safeHref } from "@/lib/sales-page/safeHref";
 import { NormalizedContentInterface } from "@/types";
 import { Check } from "lucide-react";
 
 type Props = { g: NormalizedContentInterface; productName: string };
 export default function BoldTemplate({ g, productName }: Props) {
   const content = normalizeContent(g);
+  const href = safeHref(content?.cta_url as string | undefined) || "#";
+  const label = content.cta_label?.trim() || "Get started";
   return (
     <div
       className="bg-zinc-950 text-zinc-50"
@@ -23,10 +26,10 @@ export default function BoldTemplate({ g, productName }: Props) {
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <button className="bg-lime-400 text-zinc-950 px-8 h-14 font-black uppercase tracking-wider hover:bg-lime-300">
-              Get started →
+              <a href={href}>{label} →</a>
             </button>
             <button className="border-2 border-zinc-50 text-zinc-50 px-8 h-14 font-bold uppercase tracking-wider hover:bg-zinc-50 hover:text-zinc-950">
-              Watch demo
+              <a href={href}>Learn more</a>
             </button>
           </div>
         </div>
@@ -106,7 +109,7 @@ export default function BoldTemplate({ g, productName }: Props) {
               {content?.pricing}
             </p>
             <button className="mt-8 bg-lime-400 text-zinc-950 px-10 h-14 font-black uppercase tracking-wider">
-              Claim it now
+              <a href={href}>Claim it now</a>
             </button>
           </div>
         </div>
@@ -118,7 +121,7 @@ export default function BoldTemplate({ g, productName }: Props) {
             {content?.cta}
           </h2>
           <button className="mt-10 bg-zinc-950 text-lime-400 px-10 h-14 font-black uppercase tracking-wider">
-            Start now →
+            <a href={href}>Start now →</a>
           </button>
         </div>
       </section>

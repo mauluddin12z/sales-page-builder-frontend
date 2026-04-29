@@ -154,13 +154,13 @@ export default function Page() {
             </div>
             <div className="space-y-2">
               <Label className="font-semibold" htmlFor="price">
-                Price (USD)
+                Price
               </Label>
               <Input
                 id="price"
                 value={form.price}
                 onChange={(e) => updateField("price", e.target.value)}
-                placeholder="e.g. 29"
+                placeholder="e.g. 29 USD/Month"
               />
             </div>
 

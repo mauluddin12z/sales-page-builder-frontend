@@ -1,10 +1,13 @@
 import { SalesPage } from "../mock-data";
 import { escapeHtml } from "../sales-page/escapeHtml";
-import { G } from "../sales-page/types";
+import { safeHref } from "../sales-page/safeHref";
+import { GeneratedContent } from "../sales-page/types";
 import { renderList } from "../utils/renderList";
 
 /* ---------- ELEGANT ---------- */
-export function elegantTemplate(page: SalesPage, g: G): string {
+export function elegantTemplate(page: any, g: GeneratedContent): string {
+  const href = safeHref(page?.cta_url as string | undefined) || "#";
+  const label = page.cta_label?.trim() || "Get started";
   const benefits = renderList(
     g.benefits,
     (b, i) =>
@@ -29,6 +32,10 @@ export function elegantTemplate(page: SalesPage, g: G): string {
     .hero{padding:128px 0 96px;text-align:center}.hero h1{font-size:clamp(40px,7vw,88px);line-height:1.05;color:#1a1a18;margin:32px 0 0}
     .hero p{margin:0 auto;max-width:560px;font-size:18px;color:#5c554a;line-height:1.7}
     .btn{background:#1a1a18;color:#faf7f2;border:none;height:48px;padding:0 40px;font-size:13px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
+    .btn:hover {
+      opacity: 0.8;
+      transition-duration: 0.1s;
+    }
     .btn-lg{height:56px;padding:0 48px;letter-spacing:.3em}
     section{padding:96px 0}.bordered{border-top:1px solid #e8e0d2;border-bottom:1px solid #e8e0d2}
     .story p{margin-top:32px;font-size:clamp(22px,3vw,32px);line-height:1.5;color:#1a1a18}
@@ -44,13 +51,20 @@ export function elegantTemplate(page: SalesPage, g: G): string {
     .invest p{margin:24px 0 0;font-size:22px;line-height:1.7;color:#1a1a18}
     .final{padding:128px 0;text-align:center}.final h2{font-size:clamp(36px,6vw,72px);line-height:1.15;color:#1a1a18}
     footer{border-top:1px solid #e8e0d2;padding:32px 24px;text-align:center;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#8a7d65}
+    button {
+      cursor: pointer;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
   </style>
-  <section class="hero"><div class="wrap"><p class="eyebrow">Introducing</p><h1 class="serif">${escapeHtml(g.headline)}</h1><div class="rule"></div><p>${escapeHtml(g.subheadline)}</p><div style="margin-top:48px"><button class="btn">Discover</button></div></div></section>
+  <section class="hero"><div class="wrap"><p class="eyebrow">Introducing</p><h1 class="serif">${escapeHtml(g.headline)}</h1><div class="rule"></div><p>${escapeHtml(g.subheadline)}</p><div style="margin-top:48px"><button class="btn"><a href="${href}">${label}</a></button></div></div></section>
   <section class="bordered story center"><div class="narrow"><p class="eyebrow">— The Story —</p><p class="serif">${escapeHtml(g.description)}</p></div></section>
   <section><div class="wrap"><div class="center"><p class="eyebrow">Benefits</p><h2 class="serif">Crafted for those who notice.</h2></div><div class="blist">${benefits}</div></div></section>
   <section class="feats"><div class="wrap"><div class="center"><p class="eyebrow">Features</p><h2 class="serif">Every detail considered.</h2></div><div class="fgrid">${features}</div></div></section>
   <section class="center"><div class="narrow"><p class="eyebrow">— Acclaim —</p><p class="serif quote">"${escapeHtml(g.social_proof)}"</p></div></section>
-  <section class="bordered invest center"><div class="narrow"><p class="eyebrow">Investment</p><p class="serif">${escapeHtml(g.pricing)}</p><div style="margin-top:40px"><button class="btn">Begin</button></div></div></section>
-  <section class="final"><div class="wrap"><h2 class="serif">${escapeHtml(g.cta)}</h2><div class="rule"></div><button class="btn btn-lg">Reserve yours</button></div></section>
+  <section class="bordered invest center"><div class="narrow"><p class="eyebrow">Investment</p><p class="serif">${escapeHtml(g.pricing)}</p><div style="margin-top:40px"><button class="btn"><a href="${href}">Begin</a></button></div></div></section>
+  <section class="final"><div class="wrap"><h2 class="serif">${escapeHtml(g.cta)}</h2><div class="rule"></div><button class="btn btn-lg"><a href="${href}">${label}</a></button></div></section>
   <footer>${escapeHtml(page.product_name)} · ${new Date().getFullYear()}</footer>`;
 }

@@ -1,6 +1,7 @@
 import { ApiResponse, PaginatedResponse } from "@/types";
 import { SalesPage } from "../types/salesPage";
 import api from "./client";
+import { GeneratedContent } from "../sales-page/types";
 
 /**
  * GET ALL (pagination)
@@ -60,8 +61,10 @@ export const generateSalesPage = async (
     | "user_id"
     | "generated_content"
     | "template"
+    | "cta_label"
+    | "cta_url"
   >,
-): Promise<{ success: boolean; text: string }> => {
+): Promise<{ success: boolean; data: GeneratedContent }> => {
   const { data } = await api.post("/generate-sales-page", payload);
   return data;
 };
@@ -74,11 +77,13 @@ export const regenerateSalesPage = async (
     | "user_id"
     | "generated_content"
     | "template"
+    | "cta_label"
+    | "cta_url"
   > & {
     field: string;
     current_output: Record<string, any>;
   },
-): Promise<{ success: boolean; text: any }> => {
+): Promise<{ success: boolean; data: GeneratedContent }> => {
   const { data } = await api.post("/regenerate-sales-page", payload);
   return data;
 };

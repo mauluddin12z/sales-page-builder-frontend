@@ -9,15 +9,15 @@ import {
   cache,
 } from "react";
 import Cookies from "js-cookie";
-import {
-  login as loginApi,
-  logout as logoutApi,
-  getMe,
-  register as registerApi,
-} from "@/lib/api/auth";
-import { User } from "@/lib/types/auth";
+import { User } from "@/lib/api/type";
 import toast from "react-hot-toast";
 import { mutate } from "swr";
+import {
+  getMe,
+  login as loginApi,
+  logout as logoutApi,
+  register as registerApi,
+} from "@/lib/api/auth";
 
 interface AuthContextType {
   user: User | null;

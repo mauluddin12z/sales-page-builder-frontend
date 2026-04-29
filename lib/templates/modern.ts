@@ -1,5 +1,6 @@
 import { escapeHtml } from "../sales-page/escapeHtml";
-import { G } from "../sales-page/types";
+import { safeHref } from "../sales-page/safeHref";
+import { GeneratedContent } from "../sales-page/types";
 import { renderList } from "../utils/renderList";
 
 const renderBenefits = (items: string[]) =>
@@ -33,7 +34,9 @@ const renderFeatures = (items: string[]) =>
       </div>`,
   );
 
-export function modernTemplate(page: any, g: G): string {
+export function modernTemplate(page: any, g: GeneratedContent): string {
+  const href = safeHref(page?.cta_url as string | undefined) || "#";
+  const label = page.cta_label?.trim() || "Get started";
   return `
 
 <style>
@@ -394,6 +397,10 @@ export function modernTemplate(page: any, g: G): string {
     text-decoration: none;
     width: fit-content;
   }
+  .btn:hover {
+    opacity:0.8;
+    transition-duration: 0.1;
+  }
 
 
   .btn-outline {
@@ -435,12 +442,6 @@ export function modernTemplate(page: any, g: G): string {
       /* Ring shadow */
       var(--tw-shadow);
     /* Custom shadow (LAB color) */
-  }
-
-
-  .btn-primary:hover {
-    opacity: 0.8;
-    transition-duration: 0.1;
   }
 
   .container h1 {
@@ -535,6 +536,9 @@ export function modernTemplate(page: any, g: G): string {
       line-height: 2.5rem;
     }
   }
+  button {
+    cursor: pointer;
+  }
 </style>
 <section style="position: relative" class="hero">
   <div class="background-decoration1"></div>
@@ -555,8 +559,8 @@ export function modernTemplate(page: any, g: G): string {
     <h1>${escapeHtml(g.headline)}</h1>
     <p style="text-align:center;">${escapeHtml(g.subheadline)}</p>
     <div class="cta">
-      <a href="#pricing" class="btn btn-primary">Get started</a>
-      <a href="#features" class="btn btn-outline">See it in action</a>
+      <a href="${href}" class="btn btn-primary">${label}</a>
+      <a href="${href}" class="btn btn-outline">See it in action</a>
     </div>
   </div>
   </div>
@@ -652,7 +656,7 @@ export function modernTemplate(page: any, g: G): string {
       <h2>Simple, transparent pricing</h2>
       <div style="display:flex; flex-direction:column; align-items: center; justify-content: center;" class="price-card">
         <p>${escapeHtml(g.pricing)}</p>
-        <a href="#" class="btn btn-primary" style="margin-top: 24px">Start free trial</a>
+        <a href="${label}" class="btn btn-primary" style="margin-top: 24px">Start free trial</a>
       </div>
     </div>
   </div>
@@ -661,7 +665,7 @@ export function modernTemplate(page: any, g: G): string {
   <div class="container">
     <div class="final-inner">
       <h2>${escapeHtml(g.cta)}</h2>
-      <a style="margin-top: 2rem;" href="#" class="btn btn-secondary">Get started now</a>
+      <a style="margin-top: 2rem;" href="${label}" class="btn btn-secondary">${label}</a>
     </div>
   </div>
 </section>

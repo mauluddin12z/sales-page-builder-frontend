@@ -237,4 +237,42 @@
   .animate-modal-in {
     animation: modalIn 200ms ease-out forwards;
   }
+
+  @keyframes dialogInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes dialogOutRight {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-dialog-in-right {
+    animation: dialogInRight 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-dialog-out-right {
+    animation: dialogOutRight 250ms ease-in forwards;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  button {
+    cursor: pointer;
+  }
 }

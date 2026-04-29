@@ -27,4 +27,6 @@ export type NormalizedContentInterface = {
   social_proof: string;
   pricing: string;
   cta: string;
+  cta_label?: string | null;
+  cta_url?: string | null;
 };
