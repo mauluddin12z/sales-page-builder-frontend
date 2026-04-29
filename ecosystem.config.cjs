@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
         {
-            name: "pos-resto-frontend",
+            name: "api-sales-page-builder-frontend",
             script: "npm",
             args: "start",
             env: {
