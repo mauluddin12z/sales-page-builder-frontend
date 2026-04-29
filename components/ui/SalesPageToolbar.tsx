@@ -80,9 +80,9 @@ export function SalesPageToolbar({
   handleRegenerate,
   regenLoading,
 
+  hasChanges,
 }: Props) {
   const [navHidden, setNavHidden] = useState(false);
-
 
   return (
     <>
@@ -181,6 +181,7 @@ export function SalesPageToolbar({
                         className="w-full"
                         onClick={handleApply}
                         isLoading={isGenerating}
+                        disabled={!hasChanges}
                       >
                         Save CTA
                       </Button>

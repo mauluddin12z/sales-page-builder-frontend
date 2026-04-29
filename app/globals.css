@@ -268,7 +268,7 @@
     animation: dialogOutRight 250ms ease-in forwards;
   }
 
-  html {
+  body {
     scroll-behavior: smooth;
   }
 

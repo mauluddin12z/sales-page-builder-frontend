@@ -48,7 +48,7 @@ export default function HomePage() {
               asChild
               className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 shadow-glow h-12 px-6"
             >
-              <Link href="/register">
+              <Link className="flex justify-center items-center gap-2" href="/register">
                 Start generating <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

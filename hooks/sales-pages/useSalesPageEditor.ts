@@ -46,6 +46,16 @@ export function useSalesPageEditor(page: any, id: number) {
     setCtaLabel(page.cta_label ?? "");
   }, [page, parsedContent]);
 
+  useEffect(() => {
+    if (!draftContent) return;
+
+    setDraftContent((prev: any) => ({
+      ...prev,
+      cta_label: ctaLabel,
+      cta_url: ctaUrl,
+    }));
+  }, [ctaLabel, ctaUrl]);
+
   // REGENERATE
   const handleRegenerate = async (section: SectionKey) => {
     if (!page || regenLoading) return;
