@@ -164,7 +164,7 @@ export const useSalesPageForm = (editId?: string) => {
           id: Number(editId),
           payload: {
             ...basePayload,
-            generated_content: JSON.stringify(generated),
+            generated_content: JSON.stringify(generated?.data),
           },
         });
 
@@ -176,7 +176,7 @@ export const useSalesPageForm = (editId?: string) => {
 
       const result = await createSalesPage({
         ...basePayload,
-        generated_content: JSON.stringify(generated),
+        generated_content: JSON.stringify(generated?.data),
         template: "modern",
       });
       toast.success("Sales page created successfully", { id: toastId });
