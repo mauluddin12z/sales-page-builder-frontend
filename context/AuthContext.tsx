@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  cache,
 } from "react";
 import Cookies from "js-cookie";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@/lib/api/auth";
 import { User } from "@/lib/types/auth";
 import toast from "react-hot-toast";
+import { mutate } from "swr";
 
 interface AuthContextType {
   user: User | null;
@@ -65,7 +67,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await loginApi(data);
       setAuth(res);
-
       toast.success("Welcome back!", { id: toastId });
     } catch (err) {
       console.error("Login failed:", err);
@@ -94,6 +95,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       await logoutApi();
+      mutate(() => true, undefined, { revalidate: false });
     } catch (e) {
       console.warn("logout failed, continuing anyway");
     }

@@ -10,6 +10,7 @@ import {
   useUpdateSalesPage,
   useSalesPage,
 } from "@/hooks/sales-pages";
+import { mutate } from "swr";
 
 type FormState = {
   productName: string;
@@ -166,6 +167,7 @@ export const useSalesPageForm = (editId?: string) => {
 
         toast.success("Sales page updated successfully", { id: toastId });
         router.push(`/preview/${editId}`);
+        mutate(() => true, undefined, { revalidate: false });
         return;
       }
 
@@ -174,10 +176,9 @@ export const useSalesPageForm = (editId?: string) => {
         generated_content: JSON.stringify(generated),
         template: "modern",
       });
-
       toast.success("Sales page created successfully", { id: toastId });
-
       router.push(`/preview/live-demo-${result?.data.id}`);
+      mutate(() => true, undefined, { revalidate: false });
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate sales page", { id: toastId });

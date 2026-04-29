@@ -22,8 +22,6 @@ export function Navbar() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const goTo = (path: string) => router.push(path);
-
   const openLogoutModal = () => setIsLogoutModalOpen(true);
   const closeLogoutModal = () => setIsLogoutModalOpen(false);
 
@@ -48,7 +46,9 @@ export function Navbar() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-(image:--gradient-primary) shadow-glow group-hover:scale-105 transition-transform">
               <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold tracking-tight">AI Sales Page Builder</span>
+            <span className="hidden md:block font-semibold tracking-tight">
+              AI Sales Page Builder
+            </span>
           </Link>
 
           {/* Navigation */}
@@ -58,7 +58,7 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => goTo("/dashboard")}
+                  onClick={() => router.push("/dashboard")}
                   className="hidden sm:inline-flex"
                 >
                   <LayoutDashboard className="h-4 w-4" />
@@ -67,7 +67,7 @@ export function Navbar() {
 
                 <Button
                   size="sm"
-                  onClick={() => goTo("/generate")}
+                  onClick={() => router.push("/generate")}
                   className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 shadow-glow"
                 >
                   <Plus className="h-4 w-4" />
@@ -83,14 +83,14 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => goTo("/login")}
+                  onClick={() => router.push("/login")}
                 >
                   Sign in
                 </Button>
 
                 <Button
                   size="sm"
-                  onClick={() => goTo("/register")}
+                  onClick={() => router.push("/register")}
                   className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 shadow-glow"
                 >
                   Get started
@@ -109,12 +109,12 @@ export function Navbar() {
           </div>
 
           <h1 className="text-xl font-bold text-foreground">
-            Keluar dari sesi?
+            Log out of session?
           </h1>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            Anda akan keluar dari panel kasir. Pesanan yang belum disimpan akan
-            hilang.
+            You will be logged out of your session. Any unsaved changes will be
+            lost.
           </p>
 
           <div className="mt-6 flex gap-3">
@@ -124,17 +124,17 @@ export function Navbar() {
               className="px-10"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Batal
+              Cancel
             </Button>
 
             <Button
               variant="destructive"
               onClick={handleLogout}
               isLoading={isLoggingOut}
-              loadingText="Keluar..."
+              loadingText="Logging out..."
               className="px-10"
             >
-              "Ya, Keluar"
+              Yes, Log out
             </Button>
           </div>
         </div>

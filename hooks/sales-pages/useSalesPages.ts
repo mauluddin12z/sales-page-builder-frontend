@@ -7,8 +7,6 @@ export const useSalesPages = (page: number = 1) => {
     SWR_KEYS.salesPages(page),
     () => fetchSalesPages(page),
     {
-      keepPreviousData: true,
-
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       revalidateIfStale: false,

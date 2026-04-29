@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import axios from "axios";
+import { mutate } from "swr";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -34,19 +36,24 @@ export default function LoginPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
-
     setLoading(true);
 
     try {
       const payload = { email, password };
       await login(payload);
+      mutate(() => true);
       router.push("/dashboard");
     } catch (err) {
-      setError((err as Error).message || "Login failed");
+      if (axios.isAxiosError(err)) {
+        const message =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          err.message;
+
+        setError(message);
+      } else {
+        setError("Login failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -60,7 +67,9 @@ export default function LoginPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(image:--gradient-primary) shadow-glow">
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">AI Sales Page Builder</span>
+          <span className="text-lg font-semibold tracking-tight">
+            AI Sales Page Builder
+          </span>
         </div>
 
         {/* Card */}

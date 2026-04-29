@@ -15,14 +15,15 @@ import {
 import SalesPageCard from "@/components/ui/SalesPageCard";
 import Modal from "@/components/ui/Modal";
 import toast from "react-hot-toast";
+import Pagination from "@/components/ui/Pagination";
 
 export default function DashboardPage() {
   const router = useRouter();
 
+  const [page, setPage] = useState(1);
   const { trigger: deleteSalesPage, isMutating } = useDeleteSalesPage();
-  const { salesPages } = useSalesPages();
+  const { salesPages } = useSalesPages(page);
   const salesPageList = salesPages?.data;
-
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const { salesPage: deleteTarget } = useSalesPage(deleteTargetId ?? undefined);
 
@@ -50,7 +51,7 @@ export default function DashboardPage() {
   return (
     <AppLayout>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex items-end justify-between flex-wrap gap-4">
+        <div className="flex items-end justify-between flex-wrap gap-4 w-full">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">
               Your sales pages
@@ -90,7 +91,10 @@ export default function DashboardPage() {
               asChild
               className="mt-6 bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90"
             >
-              <Link href="/generate">
+              <Link
+                className="flex justify-center items-center gap-2"
+                href="/generate"
+              >
                 <Plus className="h-4 w-4" /> Create your first page
               </Link>
             </Button>
@@ -108,6 +112,19 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
+        <div className="mt-2 md:mt-4 w-full flex justify-center items-center">
+          <Pagination
+            currentPage={salesPages?.current_page ?? 1}
+            totalPages={salesPages?.last_page ?? 1}
+            pageSize={salesPages?.per_page ?? 10}
+            totalItems={salesPages?.total ?? 0}
+            hasNextPage={
+              (salesPages?.current_page ?? 1) < (salesPages?.last_page ?? 1)
+            }
+            isLoading={!salesPages}
+            onPageChange={setPage}
+          />
+        </div>
       </div>
       <Modal isOpen={!!deleteTargetId} onClose={() => setDeleteTargetId(null)}>
         <div className="flex flex-col items-center text-center">
