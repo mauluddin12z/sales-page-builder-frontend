@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
         {
-            name: "api-sales-page-builder-frontend",
+            name: "sales-page-builder-frontend",
             script: "npm",
             args: "start",
             env: {
