@@ -130,7 +130,7 @@ export function SalesPageToolbar({
                 className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90"
               >
                 <Download className="h-4 w-4" />
-                <span className="hidden sm:inline ml-1">Export</span>
+                <span className="hidden md:inline ml-1">Export</span>
               </Button>
 
               {/* SETTINGS SHEET */}
@@ -138,7 +138,7 @@ export function SalesPageToolbar({
                 <SheetTrigger asChild>
                   <Button size="sm" variant="outline">
                     <Settings2 className="h-4 w-4" />
-                    Settings
+                    <span className="hidden md:inline ml-1">Settings</span>
                   </Button>
                 </SheetTrigger>
 
@@ -253,7 +253,8 @@ export function SalesPageToolbar({
                 variant="ghost"
                 onClick={() => setNavHidden(true)}
               >
-                <EyeOff className="h-4 w-4" /> Hide
+                <EyeOff className="h-4 w-4" />
+                <span className="hidden md:inline ml-1">Hide</span>
               </Button>
             </div>
           </div>

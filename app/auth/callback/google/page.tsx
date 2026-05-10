@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { saveSession } from "@/lib/api/auth";
 import { API_URL } from "@/lib/api/api";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 type AuthUser = {
   id: number;
@@ -63,9 +64,9 @@ export default function CallbackPage() {
         <div className="text-center">
           <p className="text-red-500">{error}</p>
 
-          <a href="/login" className="mt-4 text-blue-500 underline">
+          <Link href="/login" className="mt-4 text-blue-500 underline">
             Back to login
-          </a>
+          </Link>
         </div>
       </div>
     );

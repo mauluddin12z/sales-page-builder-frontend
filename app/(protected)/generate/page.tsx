@@ -187,7 +187,7 @@ export default function Page() {
               Cancel
             </Button>
 
-            <Button type="submit">
+            <Button isLoading={isSubmitting} loadingText="Generating your sales page…" type="submit">
               <Sparkles className="h-4 w-4" />
               {isEdit ? "Regenerate page" : "Generate sales page"}
             </Button>
