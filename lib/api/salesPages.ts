@@ -1,7 +1,8 @@
 import { ApiResponse, PaginatedResponse } from "@/types";
 import { SalesPage } from "../types/salesPage";
-import api from "./client";
+
 import { GeneratedContent } from "../sales-page/types";
+import { api } from "./api";
 
 /**
  * GET ALL (pagination)

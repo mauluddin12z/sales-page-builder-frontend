@@ -1,20 +1,25 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function proxy(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
-  const isProtectedRoute =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/generate") ||
-    request.nextUrl.pathname.startsWith("/preview");
+export function proxy(req: NextRequest) {
+  const token = req.cookies.get("token")?.value;
+  const { pathname } = req.nextUrl;
 
-  if (!token && isProtectedRoute) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // protected routes
+  const isProtectedRoute =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/generate") ||
+    pathname.startsWith("/preview");
+
+  if (isProtectedRoute && !token) {
+    const loginUrl = new URL("/login", req.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (pathname.startsWith("/login") && token) {
+    const loginUrl = new URL("/dashboard", req.url);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ["/dashboard/:path*", "/generate/:path*", "/preview/:path*"],
-};

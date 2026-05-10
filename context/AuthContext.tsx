@@ -5,118 +5,87 @@ import {
   useContext,
   useEffect,
   useState,
-  useCallback,
-  cache,
 } from "react";
-import Cookies from "js-cookie";
-import { User } from "@/lib/api/type";
-import toast from "react-hot-toast";
-import { mutate } from "swr";
-import {
-  getMe,
-  login as loginApi,
-  logout as logoutApi,
-  register as registerApi,
-} from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
+import { getToken, getUser } from "@/lib/api/auth";
 
-interface AuthContextType {
-  user: User | null;
+type User = any;
+
+type AuthContextType = {
+  user: any;
+  isAuthenticated: boolean;
   loading: boolean;
-  login: (data: any) => Promise<void>;
-  register: (data: any) => Promise<void>;
-  logout: () => Promise<void>;
-}
+  login: (token: string, user: any) => void;
+  logout: () => void;
+  refreshAuth: () => void;
+};
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const setAuth = (res: any) => {
-    Cookies.set("token", res.token);
-    setUser(res.user);
+  // initial load
+  useEffect(() => {
+    refreshAuth();
+    setLoading(false);
+  }, []);
+
+  // sync auth state from storage
+  const refreshAuth = () => {
+    const token = getToken();
+    const storedUser = getUser();
+
+    if (token && storedUser) {
+      setUser(storedUser);
+    } else {
+      setUser(null);
+    }
   };
 
-  useEffect(() => {
-    const init = async () => {
-      const token = Cookies.get("token");
+  // LOGIN (call this after successful API login)
+  const login = (token: string, user: any) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
 
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+    document.cookie = `token=${token}; path=/; max-age=604800`;
 
-      try {
-        const me = await getMe();
-        setUser(me);
-      } catch (err) {
-        Cookies.remove("token");
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setUser(user);
+  };
 
-    init();
-  }, []);
+  // LOGOUT
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-  const login = useCallback(async (data: any) => {
-    const toastId = toast.loading("Logging in...");
+    document.cookie = "token=; path=/; max-age=0";
 
-    try {
-      const res = await loginApi(data);
-      setAuth(res);
-      toast.success("Welcome back!", { id: toastId });
-    } catch (err) {
-      console.error("Login failed:", err);
-      toast.error("Invalid credentials", { id: toastId });
-      throw err;
-    }
-  }, []);
-
-  const register = useCallback(async (data: any) => {
-    const toastId = toast.loading("Creating account...");
-
-    try {
-      const res = await registerApi(data);
-      setAuth(res);
-
-      toast.success("Account created successfully", { id: toastId });
-    } catch (err) {
-      console.error("Register failed:", err);
-      toast.error("Failed to create account", { id: toastId });
-      throw err;
-    }
-  }, []);
-
-  const logout = useCallback(async () => {
-    const toastId = toast.loading("Signing out...");
-
-    try {
-      await logoutApi();
-      mutate(() => true, undefined, { revalidate: false });
-    } catch (e) {
-      console.warn("logout failed, continuing anyway");
-    }
-
-    Cookies.remove("token");
     setUser(null);
 
-    toast.success("Logged out", { id: toastId });
-  }, []);
+    router.push("/");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        loading,
+        login,
+        logout,
+        refreshAuth,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+export function useAuth() {
   const ctx = useContext(AuthContext);
-
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
-
   return ctx;
-};
+}

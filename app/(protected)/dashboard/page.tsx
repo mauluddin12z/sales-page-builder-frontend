@@ -16,13 +16,29 @@ import SalesPageCard from "@/components/ui/SalesPageCard";
 import Modal from "@/components/ui/Modal";
 import toast from "react-hot-toast";
 import Pagination from "@/components/ui/Pagination";
+import LoadingCircle from "@/components/ui/LoadingCircle";
+
+const SalesPageSkeleton = () => {
+  return (
+    <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-40 animate-pulse rounded-xl border border-border bg-card/40 flex justify-center items-center"
+        >
+          <LoadingCircle color="text-primary" />
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function DashboardPage() {
   const router = useRouter();
 
   const [page, setPage] = useState(1);
   const { trigger: deleteSalesPage, isMutating } = useDeleteSalesPage();
-  const { salesPages } = useSalesPages(page);
+  const { salesPages, isLoading } = useSalesPages(page);
   const salesPageList = salesPages?.data;
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const { salesPage: deleteTarget } = useSalesPage(deleteTargetId ?? undefined);
@@ -75,7 +91,9 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        {salesPageList?.length === 0 ? (
+        {isLoading ? (
+          <SalesPageSkeleton />
+        ) : salesPageList?.length === 0 ? (
           <div className="mt-16 rounded-2xl border border-dashed border-border bg-card/50 p-16 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-accent">
               <FileText className="h-7 w-7 text-primary" />

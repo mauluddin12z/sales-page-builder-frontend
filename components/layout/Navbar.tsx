@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Sparkles,
   LogOut,
@@ -10,13 +9,15 @@ import {
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import { Button } from "../ui/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
+import { loginWithGoogle } from "@/lib/api/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export function Navbar() {
   const { user, logout } = useAuth();
+
   const router = useRouter();
 
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -24,16 +25,16 @@ export function Navbar() {
 
   const openLogoutModal = () => setIsLogoutModalOpen(true);
   const closeLogoutModal = () => setIsLogoutModalOpen(false);
-
-  const handleLogout = async () => {
+  const handleLogout = () => {
     if (isLoggingOut) return;
 
     setIsLoggingOut(true);
     try {
-      await logout();
-      router.push("/login");
+      logout();
+      router.push("/");
     } finally {
       setIsLoggingOut(false);
+      closeLogoutModal();
     }
   };
 
@@ -42,7 +43,7 @@ export function Navbar() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href="/login" className="flex items-center gap-2 group">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-(image:--gradient-primary) shadow-glow group-hover:scale-105 transition-transform">
               <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
@@ -81,16 +82,18 @@ export function Navbar() {
             ) : (
               <>
                 <Button
+                  onClick={() => router.push("/login")}
+                  asChild
                   variant="ghost"
                   size="sm"
-                  onClick={() => router.push("/login")}
                 >
                   Sign in
                 </Button>
 
                 <Button
+                  asChild
+                  onClick={() => router.push("/dashboard")}
                   size="sm"
-                  onClick={() => router.push("/register")}
                   className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 shadow-glow"
                 >
                   Get started
@@ -102,7 +105,11 @@ export function Navbar() {
       </header>
 
       {/* Logout Modal */}
-      <Modal isOpen={isLogoutModalOpen} onClose={closeLogoutModal} isHeader={false}>
+      <Modal
+        isOpen={isLogoutModalOpen}
+        onClose={closeLogoutModal}
+        isHeader={false}
+      >
         <div className="flex flex-col items-center text-center">
           <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
             <LogOut className="h-7 w-7 text-destructive" />

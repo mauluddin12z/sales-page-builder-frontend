@@ -1,23 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ArrowRight, Sparkles, Wand2, Zap } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/Button";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
-  const { user } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (user) {
-      router.push("/dashboard");
-    }
-  }, [user, router]);
-
   return (
     <AppLayout>
       <section className="relative overflow-hidden">
@@ -44,17 +33,24 @@ export default function HomePage() {
 
           <div className="mt-10 flex items-center justify-center gap-3">
             <Button
+              onClick={() => router.push("/generate")}
               size="lg"
               asChild
               className="bg-(image:--gradient-primary) text-primary-foreground hover:opacity-90 shadow-glow h-12 px-6"
             >
-              <Link className="flex justify-center items-center gap-2" href="/register">
+              <span className="flex justify-center items-center gap-2">
                 Start generating <ArrowRight className="h-4 w-4" />
-              </Link>
+              </span>
             </Button>
 
-            <Button size="lg" variant="outline" asChild className="h-12 px-6">
-              <Link href="/login">Sign in</Link>
+            <Button
+              onClick={() => router.push("/login")}
+              size="lg"
+              variant="outline"
+              asChild
+              className="h-12 px-6"
+            >
+              Sign in
             </Button>
           </div>
 
