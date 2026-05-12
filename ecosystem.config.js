@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     apps: [
         {
             name: "sales-page-builder-frontend",
@@ -10,4 +10,4 @@ module.exports = {
             }
         }
     ]
-}
+};
